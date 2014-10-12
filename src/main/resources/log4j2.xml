@@ -6,9 +6,9 @@
     </Console>
   </Appenders>
   <Loggers>
-    <Logger name="com.coldenergia.dirstructurecomparator" level="trace">
+    <!--Logger name="com.coldenergia.dirstructurecomparator" level="trace">
       <AppenderRef ref="Console"/>
-    </Logger>
+    </Logger-->
     <Root level="trace">
       <AppenderRef ref="Console"/>
     </Root>

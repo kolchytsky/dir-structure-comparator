@@ -53,9 +53,9 @@ public class FileTreeBuilder {
         for (Path path : stream) {
             FileNode node = new FileNode(path);
             startNode.addLeaf(node);
-            /*if (path.toFile().isDirectory()) {
-                fillFileTree(node);
-            }*/
+            if (path.toFile().isDirectory()) {
+                fillFileTree(node, null);
+            }
         }
     }
 

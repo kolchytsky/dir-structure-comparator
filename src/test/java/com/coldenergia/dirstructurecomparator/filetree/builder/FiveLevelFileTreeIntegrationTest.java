@@ -1,7 +1,11 @@
 package com.coldenergia.dirstructurecomparator.filetree.builder;
 
+import com.coldenergia.dirstructurecomparator.filetree.FileNode;
+import com.coldenergia.dirstructurecomparator.filetree.FileTree;
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -16,6 +20,8 @@ import static org.junit.Assert.assertNotNull;
  * Time: 10:59 PM
  */
 public class FiveLevelFileTreeIntegrationTest extends AbstractFileTreeBuilderIntegrationTest {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(FiveLevelFileTreeIntegrationTest.class);
 
     private static final int DIR_AND_FILE_COUNT = 5;
 
@@ -44,18 +50,25 @@ public class FiveLevelFileTreeIntegrationTest extends AbstractFileTreeBuilderInt
         }
     }
 
-    /*@Test
+    @Test
     public void shouldBuildFiveLevelTree() {
         String rootDirFullPath = dirs.get(0).toAbsolutePath().toString();
         FileTreeBuilder builder = new FileTreeBuilder(rootDirFullPath);
         FileTree tree = builder.buildFileTree();
 
         FileNode node = tree.getRoot();
-        assertNotNull(node);
-        assertThatNodesContainPath(node.getLeaves(), dirs.get(i));
-        assertThatNodesContainPath(node.getLeaves(), files.get(i));
+        int level = 0;
+        do {
+            assertNotNull(node);
+            if (level + 1 < DIR_AND_FILE_COUNT) {
+                assertThatNodesContainPath(node.getLeaves(), dirs.get(level + 1));
+            }
+            assertThatNodesContainPath(node.getLeaves(), files.get(level));
 
-        for (int i = 0; i < DIR_AND_FILE_COUNT; i++) {
-        }
-    }*/
+            if (level + 1 < DIR_AND_FILE_COUNT) {
+                node = node.findLeafByPath(dirs.get(level + 1));
+            }
+            level++;
+        } while (level < DIR_AND_FILE_COUNT);
+    }
 }

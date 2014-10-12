@@ -46,8 +46,8 @@ public class AbstractFileTreeBuilderIntegrationTest {
 
     public static void assertThatNodesContainPath(Set<FileNode> nodes, Path path) {
         assertNotNull(nodes);
-        assertThat(nodes, is(not(empty())));
         assertNotNull(path);
+        assertThat("The node set is empty. It cannot contain the path " + path, nodes, is(not(empty())));
 
         boolean foundPath = false;
         for (FileNode node : nodes) {
@@ -60,7 +60,7 @@ public class AbstractFileTreeBuilderIntegrationTest {
                 break;
             }
         }
-        assertTrue(foundPath);
+        assertTrue("Path " + path + " not found", foundPath);
     }
 
     public Path getTmpRootDirPath() {
