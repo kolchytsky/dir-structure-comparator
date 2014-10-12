@@ -70,21 +70,21 @@ public class AbstractFileTreeBuilderIntegrationTest {
     public Path createFile(Path parentDirPath, String fileName) throws IOException {
         Path file = parentDirPath.resolve(fileName);
         Files.createFile(file);
-        LOGGER.info("Created " + file.toAbsolutePath().normalize());
+        LOGGER.debug("Created " + file.toAbsolutePath().normalize());
         return file;
     }
 
     public Path createDirectory(Path parentDirPath, String dirName) throws IOException {
         Path dir = parentDirPath.resolve(dirName);
         Files.createDirectory(dir);
-        LOGGER.info("Created " + dir.toAbsolutePath().normalize());
+        LOGGER.debug("Created " + dir.toAbsolutePath().normalize());
         return dir;
     }
 
     private void createTmpDir() throws IOException {
         tmpRootDirPath = Paths.get("./file_tree");
         Files.createDirectory(tmpRootDirPath);
-        LOGGER.info("Created a temp dir: " + tmpRootDirPath.toAbsolutePath().normalize());
+        LOGGER.debug("Created a temp dir: " + tmpRootDirPath.toAbsolutePath().normalize());
     }
 
     private void deleteTmpDir() throws IOException {
@@ -101,6 +101,6 @@ public class AbstractFileTreeBuilderIntegrationTest {
                 return FileVisitResult.CONTINUE;
             }
         });
-        LOGGER.info("Deleted the temp dir: " + tmpRootDirPath.toAbsolutePath().normalize());
+        LOGGER.debug("Deleted the temp dir: " + tmpRootDirPath.toAbsolutePath().normalize());
     }
 }

@@ -26,6 +26,11 @@ public class FileTreeBuilder {
         this.rootDirFullPath = rootDirFullPath;
     }
 
+    public FileTreeBuilder(String rootDirFullPath, Integer maxHeight) {
+        this.rootDirFullPath = rootDirFullPath;
+        this.maxHeight = maxHeight;
+    }
+
     /**
      * @throws DirDoesNotExistException If the root directory path is null, or the
      * {@link FileTreeBuilder#rootDirFullPath} does not represent a valid path, or
@@ -36,17 +41,19 @@ public class FileTreeBuilder {
         FileNode rootNode = new FileNode(rootDirPath);
         FileTree fileTree = new FileTree(rootNode);
         try {
-            fillFileTree(fileTree.getRoot(), null);
+            fillFileTree(fileTree.getRoot(), 1);
         } catch (IOException e) {
             throw new FileTreeBuildException(e);
         }
         return fileTree;
     }
 
-    private void fillFileTree(FileNode startNode, Integer heightOfStartLevel) throws IOException {
-        /*boolean exceedsHeight = (this.maxHeight != null) && ((heightOfStartLevel + 1) > this.maxHeight);
-        if (this.maxHeight != null) {
-        }*/
+    private void fillFileTree(FileNode startNode, int heightOfStartLevel) throws IOException {
+        boolean exceedsHeight = (this.maxHeight != null) && ((heightOfStartLevel + 1) > this.maxHeight);
+        int currentLevel = heightOfStartLevel + 1;
+        if (exceedsHeight) {
+            return;
+        }
 
         Path nodePath = startNode.getPath();
         DirectoryStream<Path> stream = Files.newDirectoryStream(nodePath);
@@ -54,7 +61,7 @@ public class FileTreeBuilder {
             FileNode node = new FileNode(path);
             startNode.addLeaf(node);
             if (path.toFile().isDirectory()) {
-                fillFileTree(node, null);
+                fillFileTree(node, currentLevel);
             }
         }
     }

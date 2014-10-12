@@ -1,6 +1,5 @@
 package com.coldenergia.dirstructurecomparator.filetree;
 
-import com.coldenergia.dirstructurecomparator.filetree.FileNode;
 import org.junit.Test;
 
 import java.nio.file.Path;
