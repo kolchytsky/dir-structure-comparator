@@ -1,4 +1,4 @@
-package com.coldenergia.dirstructurecomparator;
+package com.coldenergia.dirstructurecomparator.filetree;
 
 /**
  * User: coldenergia

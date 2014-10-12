@@ -1,4 +1,6 @@
-package com.coldenergia.dirstructurecomparator;
+package com.coldenergia.dirstructurecomparator.filetree.builder;
+
+import com.coldenergia.dirstructurecomparator.filetree.builder.FileTreeBuildException;
 
 /**
  * User: coldenergia

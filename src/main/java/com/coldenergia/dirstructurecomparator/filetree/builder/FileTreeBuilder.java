@@ -1,5 +1,7 @@
-package com.coldenergia.dirstructurecomparator;
+package com.coldenergia.dirstructurecomparator.filetree.builder;
 
+import com.coldenergia.dirstructurecomparator.filetree.FileNode;
+import com.coldenergia.dirstructurecomparator.filetree.FileTree;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;

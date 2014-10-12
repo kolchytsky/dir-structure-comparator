@@ -1,5 +1,6 @@
-package com.coldenergia.dirstructurecomparator;
+package com.coldenergia.dirstructurecomparator.filetree.builder;
 
+import com.coldenergia.dirstructurecomparator.filetree.FileNode;
 import org.junit.After;
 import org.junit.Before;
 import org.slf4j.Logger;
