@@ -12,6 +12,8 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.coldenergia.dirstructurecomparator.FileScaffolding.createDirectory;
+import static com.coldenergia.dirstructurecomparator.FileScaffolding.createFile;
 import static org.junit.Assert.assertNotNull;
 
 /**

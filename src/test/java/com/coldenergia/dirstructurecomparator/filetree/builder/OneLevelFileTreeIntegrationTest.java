@@ -9,6 +9,8 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Set;
 
+import static com.coldenergia.dirstructurecomparator.FileScaffolding.createDirectory;
+import static com.coldenergia.dirstructurecomparator.FileScaffolding.createFile;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;

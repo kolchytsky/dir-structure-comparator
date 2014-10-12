@@ -26,6 +26,11 @@ public class FileTreeBuilder {
         this.rootDirFullPath = rootDirFullPath;
     }
 
+    /**
+     * @param rootDirFullPath The full path to the root directory.
+     * @param maxHeight The maximum height of the file tree, which is to be built.
+     *                  In other words, the limit of how deep down the folders the builder will go.
+     * */
     public FileTreeBuilder(String rootDirFullPath, Integer maxHeight) {
         this.rootDirFullPath = rootDirFullPath;
         this.maxHeight = maxHeight;

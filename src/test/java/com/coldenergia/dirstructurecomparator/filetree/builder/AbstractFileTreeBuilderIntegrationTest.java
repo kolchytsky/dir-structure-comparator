@@ -7,14 +7,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.SimpleFileVisitor;
-import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Set;
 
+import static com.coldenergia.dirstructurecomparator.FileScaffolding.createTmpDir;
+import static com.coldenergia.dirstructurecomparator.FileScaffolding.deleteTmpDir;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.collection.IsEmptyCollection.empty;
@@ -36,12 +35,13 @@ public class AbstractFileTreeBuilderIntegrationTest {
 
     @Before
     public void setup() throws IOException {
-        createTmpDir();
+        tmpRootDirPath = Paths.get("./file_tree");
+        createTmpDir(tmpRootDirPath);
     }
 
     @After
     public void teardown() throws IOException {
-        deleteTmpDir();
+        deleteTmpDir(tmpRootDirPath);
     }
 
     public static void assertThatNodesContainPath(Set<FileNode> nodes, Path path) {
@@ -65,42 +65,5 @@ public class AbstractFileTreeBuilderIntegrationTest {
 
     public Path getTmpRootDirPath() {
         return tmpRootDirPath;
-    }
-
-    public Path createFile(Path parentDirPath, String fileName) throws IOException {
-        Path file = parentDirPath.resolve(fileName);
-        Files.createFile(file);
-        LOGGER.debug("Created " + file.toAbsolutePath().normalize());
-        return file;
-    }
-
-    public Path createDirectory(Path parentDirPath, String dirName) throws IOException {
-        Path dir = parentDirPath.resolve(dirName);
-        Files.createDirectory(dir);
-        LOGGER.debug("Created " + dir.toAbsolutePath().normalize());
-        return dir;
-    }
-
-    private void createTmpDir() throws IOException {
-        tmpRootDirPath = Paths.get("./file_tree");
-        Files.createDirectory(tmpRootDirPath);
-        LOGGER.debug("Created a temp dir: " + tmpRootDirPath.toAbsolutePath().normalize());
-    }
-
-    private void deleteTmpDir() throws IOException {
-        Files.walkFileTree(tmpRootDirPath, new SimpleFileVisitor<Path>() {
-            @Override
-            public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
-                Files.delete(dir);
-                return FileVisitResult.CONTINUE;
-            }
-
-            @Override
-            public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-                Files.delete(file);
-                return FileVisitResult.CONTINUE;
-            }
-        });
-        LOGGER.debug("Deleted the temp dir: " + tmpRootDirPath.toAbsolutePath().normalize());
     }
 }
