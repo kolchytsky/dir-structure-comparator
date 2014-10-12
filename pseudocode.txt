@@ -1,0 +1,44 @@
+
+# Approach 1
+
+# accept two parameters: first dir, second dir
+# create a collector of output
+# call the <compareLevels> routine with the first dir, second dir and collector as parameters
+# output the results using the output collector
+
+# <compareLevels>
+# accept three parameters: first dir, second dir, output collector
+# if the directory names don't match, add both of the directories to the output collector
+# if the directory names match
+  # list the contents of the first directory (non-recursively)
+  # list the contents of the second directory (non-recursively)
+  # find the intersection of the immediate contents and ignore it
+  # find the files and directories in the first directory,
+    which are absent in the second directory, and add them to the output collector
+  # find the files and directories in the second directory,
+    which are absent in the first directory, and add them to the output collector
+  # identify the directories in the (immediate) intersection
+  # call the <compareLevels> routine recursively for each of the directories in the intersection,
+    passing the same output collector
+# end if
+
+# Approach 2
+
+# advantages - loads the whole structure into the memory for future reference
+
+# build a tree of contents of the first directory
+# build a tree of contents of the second directory
+
+# begin traversal of the first tree, watching traversal level (tree level) carefully
+# create an output collector
+
+# have a <traverseOneLevelDown> routine, which will be called recursively
+
+# <traverseOneLevelDown>
+# accept: first dir, second dir, output collector
+# compare the (immediate) children of the first and second directories
+# add the files and directories which are present in one directory, and not the other, to the output collector
+# find the directories in the (immediate) intersection of the children
+# for each directory in the intersection
+  # call the traverseOneLevelDown routine recursively with the new directories and the same output collector
+# end of for each
