@@ -1,7 +1,5 @@
 package com.coldenergia.dirstructurecomparator.filetree.diff;
 
-import com.coldenergia.dirstructurecomparator.filetree.FileNode;
-
 /**
  * User: coldenergia
  * Date: 10/12/14
@@ -9,17 +7,17 @@ import com.coldenergia.dirstructurecomparator.filetree.FileNode;
  */
 public class DifferenceCollector {
 
-    private DifferenceNode root;
+    private DiffCollectorNode root;
 
-    public DifferenceCollector(DifferenceNode root) {
+    public DifferenceCollector(DiffCollectorNode root) {
         this.root = root;
     }
 
-    public DifferenceNode getRoot() {
+    public DiffCollectorNode getRoot() {
         return root;
     }
 
-    public void setRoot(DifferenceNode root) {
+    public void setRoot(DiffCollectorNode root) {
         this.root = root;
     }
 }

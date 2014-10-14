@@ -1,7 +1,7 @@
 package com.coldenergia.dirstructurecomparator.comparator;
 
+import com.coldenergia.dirstructurecomparator.filetree.diff.DiffCollectorNode;
 import com.coldenergia.dirstructurecomparator.filetree.diff.DifferenceCollector;
-import com.coldenergia.dirstructurecomparator.filetree.diff.DifferenceNode;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -53,10 +53,10 @@ public class OneLevelDirComparisonIntegrationTest extends AbstractDirComparatorI
         DifferenceCollector output = comparator.compareDirectories(getLeftDir().toString(), getRightDir().toString());
         assertNotNull(output);
 
-        DifferenceNode root = output.getRoot();
+        DiffCollectorNode root = output.getRoot();
         assertNotNull(root);
-        assertEquals(getLeftDir().toAbsolutePath().normalize(), root.getLeftPath().toAbsolutePath().normalize());
-        assertEquals(getRightDir().toAbsolutePath().normalize(), root.getRightPath().toAbsolutePath().normalize());
+        assertEquals(getLeftDir().toAbsolutePath().normalize().toString(), root.getLeftFile().getFileName());
+        assertEquals(getRightDir().toAbsolutePath().normalize().toString(), root.getRightFile().getFileName());
 
         final int differenceCount = onlyInLeft.size() + onlyInRight.size();
         assertThat(root.getLeaves(), hasSize(differenceCount));

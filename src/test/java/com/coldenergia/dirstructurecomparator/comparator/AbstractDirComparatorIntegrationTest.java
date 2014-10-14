@@ -1,6 +1,7 @@
 package com.coldenergia.dirstructurecomparator.comparator;
 
-import com.coldenergia.dirstructurecomparator.filetree.diff.DifferenceNode;
+import com.coldenergia.dirstructurecomparator.filetree.diff.DetachedFile;
+import com.coldenergia.dirstructurecomparator.filetree.diff.DiffCollectorNode;
 import org.junit.After;
 import org.junit.Before;
 
@@ -42,35 +43,27 @@ public class AbstractDirComparatorIntegrationTest {
         deleteTmpDir(tmpRootDirPath);
     }
 
-    public void assertThatDifferencesContainName(Collection<DifferenceNode> nodes, String name) {
+    public void assertThatDifferencesContainName(Collection<DiffCollectorNode> nodes, String name) {
         assertNotNull(name);
         assertNotNull(nodes);
         assertThat(nodes, is(not(empty())));
 
         boolean foundName = false;
-        for (DifferenceNode node : nodes) {
-            Path leftPath = node.getLeftPath();
-            Path rightPath = node.getRightPath();
+        for (DiffCollectorNode node : nodes) {
+            DetachedFile leftFile = node.getLeftFile();
+            DetachedFile rightFile = node.getRightFile();
 
-            foundName = hasFileName(leftPath, name);
+            foundName = (leftFile != null) && name.equals(leftFile.getFileName());
             if (foundName) {
                 break;
             }
 
-            foundName = hasFileName(rightPath, name);
+            foundName = (rightFile != null) && name.equals(rightFile.getFileName());
             if (foundName) {
                 break;
             }
         }
         assertTrue("There's no difference node containing " + name, foundName);
-    }
-
-    private boolean hasFileName(Path path, String fileName) {
-        boolean pathValid = (path != null) && (path.getFileName() != null);
-        if (pathValid && path.getFileName().toString().equals(fileName)) {
-            return true;
-        }
-        return false;
     }
 
     public Path getTmpRootDirPath() {
