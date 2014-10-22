@@ -1,5 +1,6 @@
 package com.coldenergia.dirstructurecomparator.comparator;
 
+import com.coldenergia.dirstructurecomparator.Side;
 import com.coldenergia.dirstructurecomparator.filetree.diff.DiffCollectorNode;
 import com.coldenergia.dirstructurecomparator.filetree.diff.DifferenceCollector;
 import org.junit.Before;
@@ -12,11 +13,10 @@ import java.util.Set;
 
 import static com.coldenergia.dirstructurecomparator.FileScaffolding.createDirectory;
 import static com.coldenergia.dirstructurecomparator.FileScaffolding.createFile;
-
+import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
-import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 
 /**
  * User: coldenergia
@@ -60,8 +60,8 @@ public class OneLevelDirComparisonIntegrationTest extends AbstractDirComparatorI
 
         final int differenceCount = onlyInLeft.size() + onlyInRight.size();
         assertThat(root.getLeaves(), hasSize(differenceCount));
-        assertThatDifferencesContainName(root.getLeaves(), "asylum");
-        assertThatDifferencesContainName(root.getLeaves(), "depot.lvl");
-        assertThatDifferencesContainName(root.getLeaves(), "docks.lvl");
+        assertThatDifferencesContainName(root.getLeaves(), "asylum", Side.LEFT);
+        assertThatDifferencesContainName(root.getLeaves(), "depot.lvl", Side.LEFT);
+        assertThatDifferencesContainName(root.getLeaves(), "docks.lvl", Side.RIGHT);
     }
 }

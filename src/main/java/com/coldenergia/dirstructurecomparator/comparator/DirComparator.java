@@ -8,11 +8,14 @@ import com.coldenergia.dirstructurecomparator.filetree.diff.DiffCollectorNode;
 import com.coldenergia.dirstructurecomparator.filetree.diff.DifferenceCollector;
 
 import java.nio.file.Files;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
+ * TODO: Refactor this using Side...Move this enum to src/main/java.
  * User: coldenergia
  * Date: 10/12/14
  * Time: 1:18 PM
@@ -35,39 +38,51 @@ public class DirComparator {
         return collector;
     }
 
-    private List<DiffCollectorNode> traverseOneLevelDown(FileNode leftTreeNode, FileNode rightTreeNode, DiffCollectorNode diffNode) {
-        Set<DetachedFile> immediateLeftFiles = detachFiles(leftTreeNode.getLeaves());
-        Set<DetachedFile> immediateRightFiles = detachFiles(rightTreeNode.getLeaves());
+    private Set<DiffCollectorNode> traverseOneLevelDown(FileNode leftTreeNode, FileNode rightTreeNode, DiffCollectorNode diffNode) {
+        Set<DiffCollectorNode> differences = new HashSet<>();
+
+        Map<DetachedFile, FileNode> leftMap = detachFiles(leftTreeNode.getLeaves());
+        Map<DetachedFile, FileNode> rightMap = detachFiles(rightTreeNode.getLeaves());
+
+        Set<DetachedFile> immediateLeftFiles = leftMap.keySet();
+        Set<DetachedFile> immediateRightFiles = rightMap.keySet();
 
         Set<DetachedFile> onlyInLeft = computeDifference(immediateLeftFiles, immediateRightFiles);
         for (DetachedFile detachedFile : onlyInLeft) {
             DiffCollectorNode newDiffNode = new DiffCollectorNode(detachedFile, null);
             diffNode.addLeaf(newDiffNode);
+            differences.add(newDiffNode);
         }
 
         Set<DetachedFile> onlyInRight = computeDifference(immediateRightFiles, immediateLeftFiles);
         for (DetachedFile detachedFile : onlyInRight) {
             DiffCollectorNode newDiffNode = new DiffCollectorNode(null, detachedFile);
             diffNode.addLeaf(newDiffNode);
+            differences.add(newDiffNode);
         }
 
         Set<DetachedFile> intersection = computeIntersection(immediateLeftFiles, immediateRightFiles);
         for (DetachedFile detachedFile : intersection) {
-            // TODO: Create a test for recursion and that add it here. Don't forget about this sort of boolean check
+            DiffCollectorNode newDiffNodeCandidate = new DiffCollectorNode(detachedFile, detachedFile);
+            Set<DiffCollectorNode> nestedDifferences = traverseOneLevelDown(leftMap.get(detachedFile), rightMap.get(detachedFile), newDiffNodeCandidate);
+            if (!nestedDifferences.isEmpty()) {
+                // candidate node must be added
+                diffNode.addLeaf(newDiffNodeCandidate);
+            }
         }
-        return null;
+        return differences;
     }
 
-    private static Set<DetachedFile> detachFiles(Set<FileNode> fileNodes) {
-        Set<DetachedFile> detachedFiles = new HashSet<>(fileNodes.size());
+    private static Map<DetachedFile, FileNode> detachFiles(Set<FileNode> fileNodes) {
+        Map<DetachedFile, FileNode> map = new HashMap<>();
         for (FileNode fileNode : fileNodes) {
             String fileName = fileNode.getPath().getFileName().toString();
             // TODO: Think about the symbolic links here.
             boolean isDirectory = Files.isDirectory(fileNode.getPath());
             DetachedFile detachedFile = new DetachedFile(fileName, isDirectory);
-            detachedFiles.add(detachedFile);
+            map.put(detachedFile, fileNode);
         }
-        return detachedFiles;
+        return map;
     }
 
     private static Set<DetachedFile> computeIntersection(Set<DetachedFile> first, Set<DetachedFile> second) {

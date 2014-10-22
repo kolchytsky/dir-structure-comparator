@@ -1,5 +1,7 @@
 package com.coldenergia.dirstructurecomparator.filetree.diff;
 
+import com.coldenergia.dirstructurecomparator.builder.DetachedFileBuilder;
+import com.coldenergia.dirstructurecomparator.builder.DiffCollectorNodeBuilder;
 import org.junit.Test;
 
 import java.util.HashSet;
@@ -46,8 +48,8 @@ public class DiffCollectorNodeUnitTest {
         final int INITIAL_SIZE = 4;
         Set<DiffCollectorNode> uniqueLeaves = new HashSet<>();
         for (int i = 0; i < INITIAL_SIZE; i++) {
-            // TODO: Make builders for unit tests
-            uniqueLeaves.add(new DiffCollectorNode(new DetachedFile("a" + i), null));
+            DetachedFile detachedFile = new DetachedFileBuilder().withFileName("a" + i).build();
+            uniqueLeaves.add(new DiffCollectorNodeBuilder().withLeftFile(detachedFile).build());
         }
         DiffCollectorNode node = new DiffCollectorNode(null, null, uniqueLeaves);
         int initialLeafCount = node.getLeaves().size();
