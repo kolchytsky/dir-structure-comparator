@@ -1,6 +1,6 @@
 package com.coldenergia.dirstructurecomparator.comparator;
 
-import com.coldenergia.dirstructurecomparator.Side;
+import com.coldenergia.dirstructurecomparator.filetree.diff.Side;
 import com.coldenergia.dirstructurecomparator.filetree.diff.DiffCollectorNode;
 
 import java.nio.file.Path;

@@ -6,16 +6,15 @@ import com.coldenergia.dirstructurecomparator.filetree.builder.FileTreeBuilder;
 import com.coldenergia.dirstructurecomparator.filetree.diff.DetachedFile;
 import com.coldenergia.dirstructurecomparator.filetree.diff.DiffCollectorNode;
 import com.coldenergia.dirstructurecomparator.filetree.diff.DifferenceCollector;
+import com.coldenergia.dirstructurecomparator.filetree.diff.Side;
 
 import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 /**
- * TODO: Refactor this using Side...Move this enum to src/main/java.
  * User: coldenergia
  * Date: 10/12/14
  * Time: 1:18 PM
@@ -28,43 +27,57 @@ public class DirComparator {
         FileTreeBuilder rightBuilder = new FileTreeBuilder(rightDirectory, null);
         FileTree rightTree = rightBuilder.buildFileTree();
 
-        DiffCollectorNode root = new DiffCollectorNode();
-        root.setLeftFile(new DetachedFile(leftTree.getRoot().getPath().toAbsolutePath().normalize().toString(), true));
-        root.setRightFile(new DetachedFile(rightTree.getRoot().getPath().toAbsolutePath().normalize().toString(), true));
-        DifferenceCollector collector = new DifferenceCollector(root);
+        DifferenceCollector collector = constructDifferenceCollector(leftTree, rightTree);
 
-        traverseOneLevelDown(leftTree.getRoot(), rightTree.getRoot(), root);
+        CorrespondingTreeNodes correspondingTreeNodes = new CorrespondingTreeNodes();
+        correspondingTreeNodes.putNodeForSide(Side.LEFT, leftTree.getRoot());
+        correspondingTreeNodes.putNodeForSide(Side.RIGHT, rightTree.getRoot());
+
+        traverseOneLevelDown(correspondingTreeNodes, collector.getRoot());
 
         return collector;
     }
 
-    private Set<DiffCollectorNode> traverseOneLevelDown(FileNode leftTreeNode, FileNode rightTreeNode, DiffCollectorNode diffNode) {
+    private DifferenceCollector constructDifferenceCollector(FileTree leftTree, FileTree rightTree) {
+        DiffCollectorNode root = new DiffCollectorNode();
+        // TODO: Rework this so that the parent dir information is stored separately in the diff collector. How ?
+        root.setFile(new DetachedFile(leftTree.getRoot().getPath().toAbsolutePath().normalize().toString(), true), Side.LEFT);
+        root.setFile(new DetachedFile(rightTree.getRoot().getPath().toAbsolutePath().normalize().toString(), true), Side.RIGHT);
+
+        DifferenceCollector collector = new DifferenceCollector(root);
+        return collector;
+    }
+
+    private Set<DiffCollectorNode> traverseOneLevelDown(
+            CorrespondingTreeNodes currentTreeNodesBySide,
+            DiffCollectorNode diffNode) {
         Set<DiffCollectorNode> differences = new HashSet<>();
 
-        Map<DetachedFile, FileNode> leftMap = detachFiles(leftTreeNode.getLeaves());
-        Map<DetachedFile, FileNode> rightMap = detachFiles(rightTreeNode.getLeaves());
+        DetachedLeafFiles detachedLeafFiles = detachLeafFiles(currentTreeNodesBySide);
+        Set<DetachedFile> immediateLeftFiles = detachedLeafFiles.getDetachedFilesForSide(Side.LEFT);
+        Set<DetachedFile> immediateRightFiles = detachedLeafFiles.getDetachedFilesForSide(Side.RIGHT);
 
-        Set<DetachedFile> immediateLeftFiles = leftMap.keySet();
-        Set<DetachedFile> immediateRightFiles = rightMap.keySet();
-
-        Set<DetachedFile> onlyInLeft = computeDifference(immediateLeftFiles, immediateRightFiles);
-        for (DetachedFile detachedFile : onlyInLeft) {
-            DiffCollectorNode newDiffNode = new DiffCollectorNode(detachedFile, null);
-            diffNode.addLeaf(newDiffNode);
-            differences.add(newDiffNode);
-        }
-
-        Set<DetachedFile> onlyInRight = computeDifference(immediateRightFiles, immediateLeftFiles);
-        for (DetachedFile detachedFile : onlyInRight) {
-            DiffCollectorNode newDiffNode = new DiffCollectorNode(null, detachedFile);
-            diffNode.addLeaf(newDiffNode);
-            differences.add(newDiffNode);
+        Map<Side, Set<DetachedFile>> differenceBetweenSides = computeDifferenceBetweenSides(
+                immediateLeftFiles, immediateRightFiles
+        );
+        for (Side side : Side.values()) {
+            for (DetachedFile detachedFile : differenceBetweenSides.get(side)) {
+                DiffCollectorNode newDiffNode = new DiffCollectorNode();
+                newDiffNode.setFile(detachedFile, side);
+                diffNode.addLeaf(newDiffNode);
+                differences.add(newDiffNode);
+            }
         }
 
         Set<DetachedFile> intersection = computeIntersection(immediateLeftFiles, immediateRightFiles);
         for (DetachedFile detachedFile : intersection) {
             DiffCollectorNode newDiffNodeCandidate = new DiffCollectorNode(detachedFile, detachedFile);
-            Set<DiffCollectorNode> nestedDifferences = traverseOneLevelDown(leftMap.get(detachedFile), rightMap.get(detachedFile), newDiffNodeCandidate);
+
+            CorrespondingTreeNodes nextCorrespondingNodes = detachedLeafFiles
+                    .getCorrespondingTreeNodesForDetachedFile(detachedFile);
+            Set<DiffCollectorNode> nestedDifferences = traverseOneLevelDown(
+                    nextCorrespondingNodes, newDiffNodeCandidate);
+
             if (!nestedDifferences.isEmpty()) {
                 // candidate node must be added
                 diffNode.addLeaf(newDiffNodeCandidate);
@@ -73,16 +86,35 @@ public class DirComparator {
         return differences;
     }
 
-    private static Map<DetachedFile, FileNode> detachFiles(Set<FileNode> fileNodes) {
-        Map<DetachedFile, FileNode> map = new HashMap<>();
-        for (FileNode fileNode : fileNodes) {
-            String fileName = fileNode.getPath().getFileName().toString();
-            // TODO: Think about the symbolic links here.
-            boolean isDirectory = Files.isDirectory(fileNode.getPath());
-            DetachedFile detachedFile = new DetachedFile(fileName, isDirectory);
-            map.put(detachedFile, fileNode);
+    private static Map<Side, Set<DetachedFile>> computeDifferenceBetweenSides(
+            Set<DetachedFile> immediateLeftFiles,
+            Set<DetachedFile> immediateRightFiles) {
+        Set<DetachedFile> onlyInLeft = computeDifference(immediateLeftFiles, immediateRightFiles);
+        Set<DetachedFile> onlyInRight = computeDifference(immediateRightFiles, immediateLeftFiles);
+
+        Map<Side, Set<DetachedFile>> differences = new HashMap<>(2);
+        differences.put(Side.LEFT, onlyInLeft);
+        differences.put(Side.RIGHT, onlyInRight);
+
+        return differences;
+    }
+
+    private static DetachedLeafFiles detachLeafFiles(CorrespondingTreeNodes correspondingNodes) {
+        DetachedLeafFiles detachedLeafFiles = new DetachedLeafFiles();
+
+        for (Side side : Side.values()) {
+            Set<FileNode> leaves = correspondingNodes.getNodeBySide(side).getLeaves();
+            for (FileNode fileNode : leaves) {
+                String fileName = fileNode.getPath().getFileName().toString();
+                // TODO: Think about the symbolic links here.
+                boolean isDirectory = Files.isDirectory(fileNode.getPath());
+                DetachedFile detachedFile = new DetachedFile(fileName, isDirectory);
+
+                detachedLeafFiles.putDetachedFile(side, detachedFile, fileNode);
+            }
         }
-        return map;
+
+        return detachedLeafFiles;
     }
 
     private static Set<DetachedFile> computeIntersection(Set<DetachedFile> first, Set<DetachedFile> second) {

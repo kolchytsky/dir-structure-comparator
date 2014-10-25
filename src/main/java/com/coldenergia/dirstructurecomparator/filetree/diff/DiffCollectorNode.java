@@ -1,7 +1,9 @@
 package com.coldenergia.dirstructurecomparator.filetree.diff;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -11,39 +13,53 @@ import java.util.Set;
  */
 public class DiffCollectorNode {
 
-    private DetachedFile leftFile;
-
-    private DetachedFile rightFile;
+    private Map<Side, DetachedFile> filesMap = new HashMap<>();
 
     private Set<DiffCollectorNode> leaves = new HashSet<>();
 
     public DiffCollectorNode() {}
 
     public DiffCollectorNode(DetachedFile leftFile, DetachedFile rightFile) {
-        this.leftFile = leftFile;
-        this.rightFile = rightFile;
+        setFile(leftFile, Side.LEFT);
+        setFile(rightFile, Side.RIGHT);
     }
 
     public DiffCollectorNode(DetachedFile leftFile, DetachedFile rightFile, Set<DiffCollectorNode> leaves) {
-        this.leftFile = leftFile;
-        this.rightFile = rightFile;
+        setFile(leftFile, Side.LEFT);
+        setFile(rightFile, Side.RIGHT);
         this.leaves = leaves == null ? new HashSet<DiffCollectorNode>() : leaves;
     }
 
     public DetachedFile getLeftFile() {
-        return leftFile;
+        return getFileBySide(Side.LEFT);
     }
 
     public void setLeftFile(DetachedFile leftFile) {
-        this.leftFile = leftFile;
+        setFile(leftFile, Side.LEFT);
     }
 
     public DetachedFile getRightFile() {
-        return rightFile;
+        return getFileBySide(Side.RIGHT);
     }
 
     public void setRightFile(DetachedFile rightFile) {
-        this.rightFile = rightFile;
+        setFile(rightFile, Side.RIGHT);
+    }
+
+    public Map<Side, DetachedFile> getFilesMap() {
+        return filesMap;
+    }
+
+    public void setFilesMap(Map<Side, DetachedFile> filesMap) {
+        this.filesMap = filesMap;
+    }
+
+    public void setFile(DetachedFile detachedFile, Side side) {
+        this.filesMap.put(side, detachedFile);
+    }
+
+    public DetachedFile getFileBySide(Side side) {
+        return this.filesMap.get(side);
     }
 
     public void addLeaf(DiffCollectorNode node) {

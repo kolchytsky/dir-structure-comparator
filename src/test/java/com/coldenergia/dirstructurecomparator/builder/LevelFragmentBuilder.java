@@ -1,6 +1,6 @@
 package com.coldenergia.dirstructurecomparator.builder;
 
-import com.coldenergia.dirstructurecomparator.Side;
+import com.coldenergia.dirstructurecomparator.filetree.diff.Side;
 import com.coldenergia.dirstructurecomparator.comparator.LevelFragment;
 import com.coldenergia.dirstructurecomparator.filetree.diff.DiffCollectorNode;
 
