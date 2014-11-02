@@ -78,5 +78,19 @@ public class DiffCollectorNode {
         this.leaves = leaves;
     }
 
+    /**
+     * Determines if this node represents a file / directory, which is
+     * the same at both sides (the contents of the directory may differ though!).
+     * */
+    public boolean isCommonNode() {
+        if (getLeftFile() == null && getRightFile() == null) {
+            return true;
+        } else if (getLeftFile() == null) {
+            return false;
+        } else {
+            return getLeftFile().equals(getRightFile());
+        }
+    }
+
     // TODO: Consider defining unique and looking at DiffCollectorNodeUnitTest
 }

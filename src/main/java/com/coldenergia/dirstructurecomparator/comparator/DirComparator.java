@@ -70,6 +70,7 @@ public class DirComparator {
         }
 
         Set<DetachedFile> intersection = computeIntersection(immediateLeftFiles, immediateRightFiles);
+        // TODO: Go past the intersection - in order to implement copying of non-existent directories, add a flag
         for (DetachedFile detachedFile : intersection) {
             DiffCollectorNode newDiffNodeCandidate = new DiffCollectorNode(detachedFile, detachedFile);
 

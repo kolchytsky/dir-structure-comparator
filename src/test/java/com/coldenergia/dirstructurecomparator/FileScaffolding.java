@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -23,6 +24,13 @@ public class FileScaffolding {
         Path file = parentDirPath.resolve(fileName);
         Files.createFile(file);
         LOGGER.debug("Created " + file.toAbsolutePath().normalize());
+        return file;
+    }
+
+    public static Path createFile(Path parentDirPath, String fileName, long fileSize) throws IOException {
+        Path file = createFile(parentDirPath, fileName);
+        RandomAccessFile f = new RandomAccessFile(file.toFile(), "rw");
+        f.setLength(fileSize);
         return file;
     }
 

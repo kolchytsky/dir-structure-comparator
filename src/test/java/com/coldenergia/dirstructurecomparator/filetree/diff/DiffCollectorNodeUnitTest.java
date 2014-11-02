@@ -2,6 +2,7 @@ package com.coldenergia.dirstructurecomparator.filetree.diff;
 
 import com.coldenergia.dirstructurecomparator.builder.DetachedFileBuilder;
 import com.coldenergia.dirstructurecomparator.builder.DiffCollectorNodeBuilder;
+import junit.extensions.TestDecorator;
 import org.junit.Test;
 
 import java.util.HashSet;
@@ -10,8 +11,10 @@ import java.util.Set;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.collection.IsEmptyCollection.empty;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 /**
  * User: coldenergia
@@ -63,5 +66,47 @@ public class DiffCollectorNodeUnitTest {
         node.addLeaves(moreUniqueLeaves);
         int finalLeafCount = node.getLeaves().size();
         assertEquals(ADDITIONAL_LEAVES_SIZE, finalLeafCount - initialLeafCount);
+    }
+
+    @Test
+    public void shouldIdentifyCommonNode() {
+        DiffCollectorNode node = new DiffCollectorNodeBuilder()
+                .withLeftFile(new DetachedFileBuilder().withFileName("dir1").withIsDirectory(true).build())
+                .withRightFile(new DetachedFileBuilder().withFileName("dir1").withIsDirectory(true).build())
+                .build();
+        assertTrue("Must have identified the node " + node + " as common", node.isCommonNode());
+
+        node = new DiffCollectorNodeBuilder()
+                .withLeftFile(new DetachedFileBuilder().withFileName("file1").withIsDirectory(false).build())
+                .withRightFile(new DetachedFileBuilder().withFileName("file1").withIsDirectory(false).build())
+                .build();
+        assertTrue("Must have identified the node " + node + " as common", node.isCommonNode());
+
+        node = new DiffCollectorNodeBuilder()
+                .withLeftFile(null)
+                .withRightFile(null)
+                .build();
+        assertTrue("Must have identified the node " + node + " as common", node.isCommonNode());
+    }
+
+    @Test
+    public void shouldNotIdentifyCommonNode() {
+        DiffCollectorNode node = new DiffCollectorNodeBuilder()
+                .withLeftFile(new DetachedFileBuilder().withFileName("smth").withIsDirectory(true).build())
+                .withRightFile(new DetachedFileBuilder().withFileName("smth").withIsDirectory(false).build())
+                .build();
+        assertFalse("Shouldn't have identified the node " + node + " as common", node.isCommonNode());
+
+        node = new DiffCollectorNodeBuilder()
+                .withLeftFile(new DetachedFileBuilder().build())
+                .withRightFile(null)
+                .build();
+        assertFalse(node.isCommonNode());
+
+        node = new DiffCollectorNodeBuilder()
+                .withLeftFile(null)
+                .withRightFile(new DetachedFileBuilder().build())
+                .build();
+        assertFalse(node.isCommonNode());
     }
 }
